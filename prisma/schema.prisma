@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model deposito {
+  id         Int      @id @default(autoincrement())
+  iban       String?  @db.VarChar(100)
+  id_usuario Int?
+  referencia String?  @db.VarChar(255)
+  valor      String?  @db.VarChar(500)
+  usuario    usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_deposito_usuario")
+
+  @@index([id_usuario], map: "fk_deposito_usuario")
+}
+
+model levantamento {
+  id         Int      @id @default(autoincrement())
+  valor      String?  @db.VarChar(500)
+  id_usuario Int?
+  usuario    usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_levantamento_usuario")
+
+  @@index([id_usuario], map: "fk_levantamento_usuario")
+}
+
+model times {
+  id                       Int     @id @default(autoincrement())
+  adversario               String? @db.MediumText
+  casa                     String? @db.MediumText
+  probabilidade_casa       String? @db.VarChar(255)
+  probabilidade_adversario String? @db.VarChar(255)
+  empate                   String? @db.VarChar(100)
+}
+
+model usuario {
+  id           Int                   @id @default(autoincrement())
+  nome         String                @db.VarChar(255)
+  iban         String?               @db.VarChar(200)
+  pais         String?               @db.VarChar(255)
+  tipo_usuario usuario_tipo_usuario? @default(dbgenerated("(_utf8mb4\\'Normal\\')"))
+  aposta       aposta[]
+  deposito     deposito[]
+  levantamento levantamento[]
+  login        login[] 
+}
+
+model aposta {
+  id            Int         @id @default(autoincrement())
+  id_ficha      Int?
+  id_usuario    Int?
+  id_referencia Int?
+  valor         String?     @db.VarChar(100)
+  data          DateTime?   @db.Date
+  ficha         ficha?      @relation(fields: [id_ficha], references: [id], onDelete: Cascade, map: "fk_aposta_ficha")
+  referencia    referencia? @relation(fields: [id_referencia], references: [id], onDelete: Cascade, map: "fk_aposta_referencia")
+  usuario       usuario?    @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_aposta_usuario")
+
+  @@index([id_ficha], map: "fk_aposta_ficha")
+  @@index([id_referencia], map: "fk_aposta_referencia")
+  @@index([id_usuario], map: "fk_aposta_usuario")
+}
+
+model equipes {
+  id   Int     @id @default(autoincrement())
+  pais String? @db.VarChar(255)
+  nome String? @db.VarChar(255)
+  logo String? @db.MediumText
+}
+
+model evento {
+  id      Int            @id @default(autoincrement())
+  data    DateTime?      @db.Date
+  sport   String?        @db.VarChar(150)
+  status  evento_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  id_jogo Int?
+  jogo    jogo?          @relation(fields: [id_jogo], references: [id], onDelete: Cascade, map: "fk_evento_jogo")
+  odds    odds[]
+
+  @@index([id_jogo], map: "fk_evento_jogo")
+}
+
+model ficha {
+  id         Int      @id @default(autoincrement())
+  construcao String?  @db.MediumText
+  aposta     aposta[]
+}
+
+model jogo {
+  id          Int      @id @default(autoincrement())
+  casa        String?  @db.VarChar(100)
+  casa_logo   String?  @db.MediumText
+  visita      String?  @db.VarChar(100)
+  visita_logo String?  @db.MediumText
+  evento      evento[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model login {
+  id_usuario Int @id @default(autoincrement())
+  email      String? @db.VarChar(200)
+  telefone   String? @db.VarChar(100)
+  senha      String? @db.MediumText
+  token      String? @db.MediumText
+  exp        String? @db.VarChar(100)
+  usuario    usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_login_usuario")
+
+  @@index([id_usuario], map: "fk_login_usuario")
+}
+
+model odds {
+  id        Int     @id @default(autoincrement())
+  id_evento Int?
+  odds      String? @db.VarChar(500)
+  evento    evento? @relation(fields: [id_evento], references: [id], onDelete: Cascade, map: "fk_odds_evento")
+
+  @@index([id_evento], map: "fk_odds_evento")
+}
+
+model referencia {
+  id     Int                @id @default(autoincrement())
+  codigo String?            @db.VarChar(200)
+  status referencia_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  aposta aposta[]
+}
+
+enum referencia_status {
+  Pendente
+  Ativado
+  Desativado
+}
+
+enum evento_status {
+  Pendente
+  Ativado
+  Desativado
+}
+
+enum usuario_tipo_usuario {
+  Admin
+  Normal
+  Agente
+}

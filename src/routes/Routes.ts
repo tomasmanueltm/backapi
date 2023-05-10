@@ -14,6 +14,12 @@ routes.get('/',async (request: Request, response: Response)=>{
     })
 });
 
+routes.get('/teste',async (request: Request, response: Response)=>{
+    return response.status(200).json({
+        message:"sucesso Teste"
+    })
+});
+
 //API Externa
 const APIkey ='2dad5d1ec71e86c9cf213e39c9a5865857706ad582273ba35064a7f32cfb4026';
 

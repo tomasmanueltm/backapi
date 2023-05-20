@@ -1,8 +1,5 @@
 import {Request , Response, NextFunction} from 'express'
 import { prismaClient } from '../database/prismaClient';
-import { sign } from "jsonwebtoken";
-import {compare, hash} from 'bcryptjs';
-
 
 export class UsuarioController{
     async create(request: Request, response: Response){
@@ -31,19 +28,6 @@ export class UsuarioController{
                       
         }
             
-    }
-
-    async login(request: Request, response: Response){
-        const {email,password }= request.body;
-        
-        const token = await new UsuarioServices().loginService(email, password);
-        if(token instanceof Error){
-            return response.status(500).json({"Error: ": token.message});
-        }
-        else{
-            return response.status(200).json(token);
-        }
-        
     }
 
     async findAll(request: Request, response: Response){
@@ -126,7 +110,4 @@ export class UsuarioController{
             
     }
 
-    //METODOS AUXILIARES
-
-    
 }

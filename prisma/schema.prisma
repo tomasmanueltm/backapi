@@ -38,14 +38,19 @@ model times {
 
 model usuario {
   id           Int                   @id @default(autoincrement())
-  nome         String                @db.VarChar(255)
+  nome         String?                @db.VarChar(255)
   iban         String?               @db.VarChar(200)
   pais         String?               @db.VarChar(255)
+  moeda_padrao String?               @db.VarChar(255)
+  email      String? @db.VarChar(200)
+  telefone   String? @db.VarChar(100)
+  senha      String? @db.MediumText
+  token      String? @db.MediumText
+  exp        String? @db.VarChar(100)
   tipo_usuario usuario_tipo_usuario? @default(Normal)
   aposta       aposta[]
   deposito     deposito[]
   levantamento levantamento[]
-  login        login[] 
 }
 
 model aposta {
@@ -96,19 +101,6 @@ model jogo {
   visita      String?  @db.VarChar(100)
   visita_logo String?  @db.MediumText
   evento      evento[]
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model login {
-  id_usuario Int @id @default(autoincrement())
-  email      String? @db.VarChar(200)
-  telefone   String? @db.VarChar(100)
-  senha      String? @db.MediumText
-  token      String? @db.MediumText
-  exp        String? @db.VarChar(100)
-  usuario    usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_login_usuario")
-
-  @@index([id_usuario], map: "fk_login_usuario")
 }
 
 model odds {

@@ -107,18 +107,19 @@ routes.get('/api/ligas',async (request: Request, response: Response)=>{
 });
 
 
-
-
 //------------------- API Interna
 
 //USUARIO
-routes.post('/api/usuario', ensuredAuthenticated, new UsuarioController().create);
+routes.post('/api/usuario', //ensuredAuthenticated(), 
+new UsuarioController().create);
 routes.get('/api/usuarios', new UsuarioController().findAll);
 routes.get('/api/usuario/:id', new UsuarioController().findById);
 routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController().updateBySenha);
 
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
+routes.post('/api/redefinir-senha/sms', new UsuarioController().recuperarSenhaBySMS);
+routes.post('/api/redefinir-senha/email', new UsuarioController().recuperarSenhaBySMS);
 
 //Login
 routes.post('/api/login', new UsuarioController().login);

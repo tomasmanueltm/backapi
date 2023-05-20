@@ -27,7 +27,7 @@ O obejtivo desta api é servia de intermediaria para filtrar registros que não 
   - token
   - exp
 
-- [] Usuário
+- [] Usuário  
   - [] id 
   - [] nome
   - [] iban
@@ -154,3 +154,6 @@ Este endpoint permite obter informações sobre eventos disponíveis para aposta
 5. Pega os odds deste jogo (Probabilidade)
 receber datas ()- 
 receber ligas - 
+
+FRONT - END : https://soccer-off-on.vercel.app/
+

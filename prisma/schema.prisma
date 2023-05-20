@@ -38,14 +38,19 @@ model times {
 
 model usuario {
   id           Int                   @id @default(autoincrement())
-  nome         String                @db.VarChar(255)
+  nome         String?                @db.VarChar(255)
   iban         String?               @db.VarChar(200)
   pais         String?               @db.VarChar(255)
-  tipo_usuario usuario_tipo_usuario? @default(dbgenerated("(_utf8mb4\\'Normal\\')"))
+  moeda_padrao String?               @db.VarChar(255)
+  email      String? @db.VarChar(200)
+  telefone   String? @db.VarChar(100)
+  senha      String? @db.MediumText
+  token      String? @db.MediumText
+  exp        String? @db.VarChar(100)
+  tipo_usuario usuario_tipo_usuario? @default(Normal)
   aposta       aposta[]
   deposito     deposito[]
   levantamento levantamento[]
-  login        login[] 
 }
 
 model aposta {
@@ -75,7 +80,7 @@ model evento {
   id      Int            @id @default(autoincrement())
   data    DateTime?      @db.Date
   sport   String?        @db.VarChar(150)
-  status  evento_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  status  evento_status? @default(Pendente)
   id_jogo Int?
   jogo    jogo?          @relation(fields: [id_jogo], references: [id], onDelete: Cascade, map: "fk_evento_jogo")
   odds    odds[]
@@ -98,19 +103,6 @@ model jogo {
   evento      evento[]
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model login {
-  id_usuario Int @id @default(autoincrement())
-  email      String? @db.VarChar(200)
-  telefone   String? @db.VarChar(100)
-  senha      String? @db.MediumText
-  token      String? @db.MediumText
-  exp        String? @db.VarChar(100)
-  usuario    usuario @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_login_usuario")
-
-  @@index([id_usuario], map: "fk_login_usuario")
-}
-
 model odds {
   id        Int     @id @default(autoincrement())
   id_evento Int?
@@ -123,7 +115,7 @@ model odds {
 model referencia {
   id     Int                @id @default(autoincrement())
   codigo String?            @db.VarChar(200)
-  status referencia_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  status referencia_status? @default(Pendente)
   aposta aposta[]
 }
 

@@ -7,6 +7,7 @@ import {UsuarioController} from '../controllers/UsuarioController'
 import {DepositoController} from '../controllers/DepositoController'
 import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
+import { ensuredAuthenticated } from 'src/middlewares/usuarioMiddleware';
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -21,7 +22,7 @@ routes.get('/teste',async (request: Request, response: Response)=>{
 });
 
 //API Externa
-const APIkey ='2dad5d1ec71e86c9cf213e39c9a5865857706ad582273ba35064a7f32cfb4026';
+const APIkey ='c7ecc7de35dc46dfe49230277935003256587c135a2f24668be02e72ee4f92ba';
 
 routes.get('/api/paises',async (request: Request, response: Response)=>{
     try {
@@ -108,14 +109,19 @@ routes.get('/api/ligas',async (request: Request, response: Response)=>{
 
 
 
-//------------------- API Externa
+//------------------- API Interna
+
 //USUARIO
-routes.post('/api/usuario', new UsuarioController().create);
+routes.post('/api/usuario', ensuredAuthenticated, new UsuarioController().create);
 routes.get('/api/usuarios', new UsuarioController().findAll);
 routes.get('/api/usuario/:id', new UsuarioController().findById);
+routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController().updateBySenha);
+
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
 
+//Login
+routes.post('/api/login', new UsuarioController().login);
 
 //Deposito
 routes.post('/api/deposito', new DepositoController().create);

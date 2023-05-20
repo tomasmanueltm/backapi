@@ -1,72 +1,36 @@
 import {Request , Response} from 'express'
 import { prismaClient } from '../database/prismaClient';
-import { sign } from "jsonwebtoken";
+import { gerarToken } from 'src/utils/GerarToken';
 import {compare, hash} from 'bcryptjs';
 
 export class LoginController{
     
-    async create(request: Request, response: Response){
-        const {
-            idUsuario,email,telefone,senha, exp
-        } = request.body;
-        try {
-            const usuario = await prismaClient.usuario.findFirst({
-                where:{ //verificar se existe um usuario com o este id
-                    id:Number(idUsuario.trim())
-                }}
-            );
-            if(!usuario){
-                return new Error("ERRO: Usuário don't exists, please create a user!");
-            }
-            else{
-                const passwordHash = await hash(senha.trim(), 8);
-                const token = sign({}, String(process.env.SECRET_JWT), {
-                    subject: String(idUsuario.trim()),
-                });
-                const service = prismaClient.login.create({
-                    data:{
-                        id_usuario:Number(idUsuario.trim()),
-                        email,
-                        telefone,
-                        senha:passwordHash, 
-                        token,
-                        exp
-                    }
-                })
-                return service;
-            }
-        } catch (error) {
-            return error;
-        } finally{
-            await prismaClient.$disconnect();
-        }   
-    }
 
-    async loginService(request: Request, response: Response){
+    async login(request: Request, response: Response){
     
         const {
-            idUsuario,senha,email
+            senha,telefone
         } = request.body;
         try {
-            const login = await prismaClient.login.findFirstOrThrow({
+            const dados = await prismaClient.login.findFirstOrThrow({
                 where:{
-                    id_usuario:Number(idUsuario.trim())
+                    telefone:telefone.trim()
                 }
             })
-            console.log(login);
-            if (!login) {
-                return new Error("login does not exists!");
+            console.log(dados);
+            if (!dados) {
+                return response.status(404).json(new Error("NOT FOUND : PHONE NUMBER!"));
             }
-            const passwordMatch = await compare(senha.trim(), String(login.senha));
+            const passwordMatch = await compare(senha.trim(), String(dados.senha));
             
             if (!passwordMatch) {
-                return new Error("Error: Password incorrect!");
+                return response.status(400).json(new Error("BAD REQUEST : PASSWORD IS WRONG!"));
             }
           
-            const token = sign({}, String(process.env.SECRET_JWT), {
-                subject: String(login.id_usuario),
-            });
-            return { login, token };
+            const token = gerarToken(dados.id_usuario);
+            
+
+            return { token };
         } catch (error) {
             return error;
         } finally{

@@ -41,7 +41,7 @@ model usuario {
   nome         String                @db.VarChar(255)
   iban         String?               @db.VarChar(200)
   pais         String?               @db.VarChar(255)
-  tipo_usuario usuario_tipo_usuario? @default(dbgenerated("(_utf8mb4\\'Normal\\')"))
+  tipo_usuario usuario_tipo_usuario? @default(Normal)
   aposta       aposta[]
   deposito     deposito[]
   levantamento levantamento[]
@@ -75,7 +75,7 @@ model evento {
   id      Int            @id @default(autoincrement())
   data    DateTime?      @db.Date
   sport   String?        @db.VarChar(150)
-  status  evento_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  status  evento_status? @default(Pendente)
   id_jogo Int?
   jogo    jogo?          @relation(fields: [id_jogo], references: [id], onDelete: Cascade, map: "fk_evento_jogo")
   odds    odds[]
@@ -123,7 +123,7 @@ model odds {
 model referencia {
   id     Int                @id @default(autoincrement())
   codigo String?            @db.VarChar(200)
-  status referencia_status? @default(dbgenerated("(_utf8mb4\\'Pendente\\')"))
+  status referencia_status? @default(Pendente)
   aposta aposta[]
 }
 

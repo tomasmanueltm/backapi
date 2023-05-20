@@ -7,6 +7,7 @@ import {UsuarioController} from '../controllers/UsuarioController'
 import {DepositoController} from '../controllers/DepositoController'
 import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
+import { LoginController } from 'src/controllers/LoginController';
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -108,7 +109,7 @@ routes.get('/api/ligas',async (request: Request, response: Response)=>{
 
 
 
-//------------------- API Externa
+//------------------- API Interna
 //USUARIO
 routes.post('/api/usuario', new UsuarioController().create);
 routes.get('/api/usuarios', new UsuarioController().findAll);
@@ -116,6 +117,8 @@ routes.get('/api/usuario/:id', new UsuarioController().findById);
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
 
+//Login
+routes.post('/api/login', new LoginController().login);
 
 //Deposito
 routes.post('/api/deposito', new DepositoController().create);

@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SaraTuma/API-aux.git"
+    "url": "git+https://github.com/tomasmanueltm/backapi.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SaraTuma/API-aux/issues"
+    "url": "https://github.com/tomasmanueltm/backapi.git/issues"
   },
-  "homepage": "https://github.com/SaraTuma/API-aux#readme",
+  "homepage": "https://github.com/tomasmanueltm/backapi.git#readme",
   "dependencies": {
     "@prisma/client": "^4.13.0",
     "axios": "^1.3.6",

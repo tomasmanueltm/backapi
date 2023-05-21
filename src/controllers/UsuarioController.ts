@@ -2,13 +2,14 @@ import {Request , Response, NextFunction} from 'express'
 import { prismaClient } from '../database/prismaClient';
 import { gerarToken, verificarToken } from 'src/utils/GerarToken';
 import {compare, hash} from 'bcryptjs';
-import { sign } from "jsonwebtoken";
+import { sign , verify} from "jsonwebtoken";
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
+import transporter from 'src/utils/GmailConnexion';
 
 const client = twilio(
-    'ACda7e5726a7b0d064a132db21d8543f49', // SID da sua conta Twilio
-    '02bcd470816199fd48d7ad9bf74248df', // Token de autenticação da sua conta Twilio
+    String(process.env.TWILIO_ACCOUNT_SID), // SID da sua conta Twilio
+    String(process.env.TWILIO_AUTH_TOKEN), // Token de autenticação da sua conta Twilio
 );
 
 export class UsuarioController{
@@ -203,38 +204,6 @@ export class UsuarioController{
             
     }
 
-    // Rota para solicitar a recuperação de senha por e-mail
-  /*  async recuperarSenha (req: Request, res: Response) {
-    const { email } = req.body.email;
-  
-    // Verificar se o e-mail está registrado
-    const user = await prismaClient.usuario.findFirst({ where: { email : email.trim() } });
-    if (!user) {
-      return res.status(404).json({ message: 'E-mail não encontrado' });
-    }
-  
-    // Gerar token de redefinição de senha com expiração de 1 hora
-    const token = sign({ userId: user.id }, String(process.env.SECRET_JWT), { expiresIn: '1h' });
-  
-    // Enviar e-mail com o link de redefinição de senha
-    const resetLink = `https://seusite.com/redefinir-senha?token=${token}`;
-    const mailOptions = {
-      from: 'seuemail@dominio.com',
-      to: email,
-      subject: 'Redefinição de Senha',
-      text: `Clique no link a seguir para redefinir sua senha: ${resetLink}`,
-    };
-  
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Erro ao enviar e-mail:', error);
-        return res.status(500).json({ message: 'Erro ao enviar e-mail' });
-      }
-      console.log('E-mail enviado:', info.response);
-      res.json({ message: 'E-mail enviado com sucesso' });
-    });
-  });*/
-
   // Rota para solicitar a recuperação de senha por SMS
   async recuperarSenhaBySMS (req: Request, res: Response){
     const { phoneNumber } = req.body;
@@ -255,8 +224,9 @@ export class UsuarioController{
         from: '+12543183081',
         to: phoneNumber,
       })
-      .then((message) => {
+      .then(async (message) => {
         console.log('SMS enviado:', message.sid);
+        const result = await prismaClient.usuario.update({ where: {id:user.id },data:{codigo_sms : String(verificationCode)} });
         res.status(200).json({ message: 'SMS enviado com sucesso' });
       })
       .catch((error) => {
@@ -265,4 +235,95 @@ export class UsuarioController{
       });
   };
 
+  // Rota para solicitar a recuperação de senha por e-mail
+  async recuperarSenhaByEMAIL(req: Request, res: Response){
+    const { email } = req.body;
+  
+    // Verificar se o e-mail está registrado
+    const user = await prismaClient.usuario.findFirst({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: 'E-mail não encontrado' });
+    }
+  
+    // Gerar token de redefinição de senha com expiração de 1 hora
+    const token = sign({ userId: user.id },  String(process.env.SECRET_JWT), { expiresIn: '1h' });
+  
+    // Enviar e-mail com o link de redefinição de senha
+    const resetLink = `https://seusite.com/redefinir-senha?token=${token}`;
+    const mailOptions = {
+      from: 'seuemail@dominio.com',
+      to: email,
+      subject: 'Redefinição de Senha',
+      text: `Clique no link a seguir para redefinir sua senha: ${resetLink}`,
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Erro ao enviar e-mail:', error);
+        return res.status(500).json({ message: 'Erro ao enviar e-mail' });
+      }
+      console.log('E-mail enviado:', info.response);
+      res.json({ message: 'E-mail enviado com sucesso' });
+    });
+  };
+
+
+  private async atualizarSenhaByUser(id_usuario: number, novaSenha:string , novoCodigo?: string){
+    try {
+        const codigo = novoCodigo || '';
+        // Atualizar a senha do usuário
+        const hashedPassword = await hash(novaSenha, 10);
+        await prismaClient.usuario.update({
+            where: { id: id_usuario },
+            data: { senha: hashedPassword, codigo_sms:codigo },
+        });
+        return 'Senha redefinida com sucesso';
+    } catch (error) {
+        console.error('Erro ao redefinir a senha:', error);
+        return 'Erro ao redefinir a senha';
+    }
+    
+  }
+
+  // Rota para redefinir a senha após confirmação por e-mail
+    async redefinirSenhaEmail (req: Request, res: Response){
+        const novaSenha  = req.body.novaSenha;
+        const token = req.params.token;
+    
+        try {
+        // Verificar e decodificar o token
+        const decodedToken = verify(token,  String(process.env.SECRET_JWT)) as { userId: number };
+    
+        // Verificar se o usuário existe
+        const user = await prismaClient.usuario.findUnique({ where: { id: decodedToken.userId } });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuário não encontrado!' });
+        }
+    
+        const message = this.atualizarSenhaByUser(decodedToken.userId,novaSenha.trim() );
+        res.status(200).json({ message: message });
+        } catch (error) {
+            console.error('Erro ao redefinir a senha:', error);
+            res.status(500).json({ message: 'Erro ao redefinir a senha' });
+        }
+    };
+
+  // Rota para redefinir a senha após confirmação por SMS
+  async redefinirSenhaSMS (req: Request, res: Response){
+    const { codigo, novaSenha } = req.body;
+    try {
+    // Verificar se o usuário existe
+    const user = await prismaClient.usuario.findFirst({ where: { codigo_sms: codigo.trim() } });
+    if (!user) {
+        return res.status(404).json({ message: 'Usuário não encontrado!' });
+    }
+    const message = this.atualizarSenhaByUser(user.id,novaSenha.trim(),codigo.trim() );
+    
+    res.status(200).json({ message: message });
+    } catch (error) {
+        console.error('Erro ao redefinir a senha:', error);
+        res.status(500).json({ message: 'Erro ao redefinir a senha' });
+    }
+};
+  
 }

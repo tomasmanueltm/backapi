@@ -8,6 +8,7 @@ import {DepositoController} from '../controllers/DepositoController'
 import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
 import {ensuredAuthenticated} from 'src/middlewares/usuarioMiddleware';
+import { generateRandomString } from 'src/utils/GerarChavesFortes';
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -18,6 +19,13 @@ routes.get('/',async (request: Request, response: Response)=>{
 routes.get('/teste',async (request: Request, response: Response)=>{
     return response.status(200).json({
         message:"sucesso Teste"
+    })
+});
+routes.get('/gerarChave',async (request: Request, response: Response)=>{
+
+    return response.status(200).json({
+        status : 'OK Gerar string para SECRET_JWT',
+        message: generateRandomString(32)
     })
 });
 
@@ -114,7 +122,11 @@ routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController()
 
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
-routes.post('/api/redefinir-senha/sms', new UsuarioController().recuperarSenhaBySMS);
+// Redefinir a senha SMS
+routes.post('/api/redefinir-senha/telefone', new UsuarioController().recuperarSenhaBySMS); //recebe o telefone e envia a sms e guarda o código na BD
+routes.post('/api/redefinir-senha/codigo', new UsuarioController().verificarCodigoEnviado); //recebe o codigo e verifica ele
+routes.post('/api/redefinir-senha/actualizar/', new UsuarioController().redefinirSenhaSMS); //recebe o codigo e a nova senha para actualizar na BD
+// Redefinir a senha por E-MAIL
 routes.post('/api/redefinir-senha/email', new UsuarioController().recuperarSenhaBySMS);
 
 //Login

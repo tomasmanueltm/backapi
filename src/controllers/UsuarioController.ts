@@ -3,9 +3,9 @@ import { prismaClient } from '../database/prismaClient';
 import { gerarToken, verificarToken } from 'src/utils/GerarToken';
 import {compare, hash} from 'bcryptjs';
 import { sign , verify} from "jsonwebtoken";
-import nodemailer from 'nodemailer';
 import twilio from 'twilio';
 import transporter from 'src/utils/GmailConnexion';
+import { validationResult } from 'express-validator';
 
 const API_DEFAULT_ROUTE = String(process.env.API_DEFAULT_ROUTE);
 
@@ -22,6 +22,10 @@ export class UsuarioController{
         } = request.body;
         
         try {
+            const errors = validationResult(request);
+            if (!errors.isEmpty()) {
+                return response.status(400).json({ errors: errors.array() });
+            }
             /*const dados = await prismaClient.usuario.findFirstOrThrow({
                 where:{
                     telefone : telefone.trim(),
@@ -135,6 +139,10 @@ export class UsuarioController{
     }
 
     async findById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number(request.params.id.trim())
         const usuario = await prismaClient.usuario.findFirst({
             where:{
@@ -230,7 +238,7 @@ export class UsuarioController{
     const { email } = req.body;
   
     // Verificar se o e-mail está registrado
-    const user = await prismaClient.usuario.findFirst({ where: { email } });
+    const user = await prismaClient.usuario.findFirst({ where: { email:email.trim() } });
     if (!user) {
       return res.status(404).json({ message: 'E-mail não encontrado' });
     }
@@ -241,9 +249,10 @@ export class UsuarioController{
     // Enviar e-mail com o link de redefinição de senha
     const resetLink = `${API_DEFAULT_ROUTE}/api/redefinir-senha/?token=${token}`;
     const mailOptions = {
-      from: 'seuemail@dominio.com',
-      to: email,
-      subject: 'Redefinição de Senha',
+      from: String(process.env.EMAIL_DESCRIPTION),
+      to: email.trim(),
+      //replayTo:email.trim(),
+      subject: 'Pantera Bet : Redefinição de Senha',
       text: `Clique no link a seguir para redefinir sua senha: ${resetLink}`,
     };
   
@@ -253,14 +262,26 @@ export class UsuarioController{
         return res.status(500).json({ message: 'Erro ao enviar e-mail' });
       }
       console.log('E-mail enviado:', info.response);
-      res.json({ message: 'E-mail enviado com sucesso' });
+      res.status(200).json({ message: 'E-mail enviado com sucesso' });
     });
   };
 
   // Rota para redefinir a senha após confirmação por e-mail
-    async redefinirSenhaEmail (req: Request, res: Response){
-        const novaSenha  = req.body.novaSenha;
+    async verificarTokenByEMAIL (req: Request, res: Response){
         const token = req.params.token;
+        try {
+        // Verificar e decodificar o token
+        const decodedToken = verify(token,  String(process.env.SECRET_JWT_EMAIL_VALIDATION)) as { userId: number };
+        console.log('decodedToken : '+decodedToken)
+        if(decodedToken)
+            return res.status(200).json({ message: 'Token válido!'});
+        } catch (error) {
+            console.error('Erro ao verificar o Token :', error);
+            return res.status(500).json({ message: 'Erro ao verificar o Token' });
+        }
+    };
+    async redefinirSenhaEmail (req: Request, res: Response){
+        const {novaSenha, token}  = req.body;
     
         try {
         // Verificar e decodificar o token
@@ -279,6 +300,7 @@ export class UsuarioController{
             res.status(500).json({ message: 'Erro ao redefinir a senha' });
         }
     };
+
 
     // -------------------  SMS
 

@@ -1,6 +1,8 @@
 import {Request , Response, Router} from 'express'
 import axios,{AxiosRequestConfig} from 'axios'
 
+import { body,query } from 'express-validator';
+
 const routes = Router();
 
 import {UsuarioController} from '../controllers/UsuarioController'
@@ -114,10 +116,20 @@ routes.get('/api/ligas',async (request: Request, response: Response)=>{
 //------------------- API Interna
 
 //USUARIO
-routes.post('/api/usuario', //ensuredAuthenticated(), 
+routes.post('/api/usuario',[ //telefone, senha, moeda, email
+    body('telefone').notEmpty().isString().withMessage('O campo telefone é obrigatório!'),
+    body('senha').notEmpty().isString().withMessage('O campo senha é obrigatório!'),
+    body('moeda').notEmpty().isString().withMessage('O campo moeda é obrigatório!'),
+    body('email').notEmpty().isString().isEmail().withMessage('O campo email é obrigatório e deve ser um e-mail válido!')
+],
+ //ensuredAuthenticated(), 
 new UsuarioController().create);
 routes.get('/api/usuarios', new UsuarioController().findAll);
-routes.get('/api/usuario/:id', new UsuarioController().findById);
+routes.get('/api/usuario/:id', 
+[
+    query('id').notEmpty().isInt().withMessage('O parametro id é obrigatório!'),
+],
+new UsuarioController().findById);
 routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController().updateBySenha);
 
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
@@ -125,9 +137,12 @@ routes.put('/api/usuario/:id', new UsuarioController().update);
 // Redefinir a senha SMS
 routes.post('/api/redefinir-senha/telefone', new UsuarioController().recuperarSenhaBySMS); //recebe o telefone e envia a sms e guarda o código na BD
 routes.post('/api/redefinir-senha/codigo', new UsuarioController().verificarCodigoEnviado); //recebe o codigo e verifica ele
-routes.post('/api/redefinir-senha/actualizar/', new UsuarioController().redefinirSenhaSMS); //recebe o codigo e a nova senha para actualizar na BD
+routes.post('/api/redefinir-senha/actualizar', new UsuarioController().redefinirSenhaSMS); //recebe o codigo e a nova senha para actualizar na BD
 // Redefinir a senha por E-MAIL
-routes.post('/api/redefinir-senha/email', new UsuarioController().recuperarSenhaBySMS);
+routes.post('/api/redefinir-senha/email', new UsuarioController().recuperarSenhaByEMAIL); //recebe um email e envia um e-mail para ele
+routes.get('/api/redefinir-senha/:token', new UsuarioController().verificarTokenByEMAIL); //verifica a autenticidade do token
+routes.post('/api/redefinir-senha/actualizar', new UsuarioController().redefinirSenhaEmail); //actualiza a senha
+
 
 //Login
 routes.post('/api/login', new UsuarioController().login);

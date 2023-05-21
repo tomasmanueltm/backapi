@@ -105,6 +105,19 @@ model jogo {
   evento      evento[]
 }
 
+model agente {
+  id          Int      @id @default(autoincrement())
+  nome        String  @db.VarChar(100)
+  email   String  @db.MediumText
+  data_nasc      String  @db.VarChar(100)
+  pais       String  @db.VarChar(100)
+  moeda       String  @db.VarChar(100)
+  telefone       String?  @db.VarChar(100)
+  endereco       String?  @db.VarChar(100)
+  file_original_name String?  @db.VarChar(100)
+  file_name String?  @db.VarChar(100)
+}
+
 model odds {
   id        Int     @id @default(autoincrement())
   id_evento Int?

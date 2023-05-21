@@ -26,7 +26,7 @@ App.use((request: Request, response: Response
 
 //Rota para visualizar os ficheiros da pasta uploads (navegador)
 // localhost:porta/kitadi/files/nome_arquivo
-App.use("/kitadi/files", express.static("uploads"));
+App.use("/api/files", express.static("uploads"));
 
 // para imprimir os logs da API
 App.use(logger('dev'))

@@ -46,6 +46,8 @@ model usuario {
   telefone   String? @db.VarChar(100)
   senha      String? @db.MediumText
   token      String? @db.MediumText
+  codigo_sms      String? @db.VarChar(100)
+  email_token      String? @db.MediumText
   exp        String? @db.VarChar(100)
   tipo_usuario usuario_tipo_usuario? @default(Normal)
   aposta       aposta[]

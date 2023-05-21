@@ -1,5 +1,5 @@
 import {Request , Response, Router} from 'express'
-import {Axios} from 'axios'
+import axios,{AxiosRequestConfig} from 'axios'
 
 const routes = Router();
 
@@ -7,7 +7,7 @@ import {UsuarioController} from '../controllers/UsuarioController'
 import {DepositoController} from '../controllers/DepositoController'
 import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
-import { ensuredAuthenticated } from 'src/middlewares/usuarioMiddleware';
+import {ensuredAuthenticated} from 'src/middlewares/usuarioMiddleware';
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -22,88 +22,84 @@ routes.get('/teste',async (request: Request, response: Response)=>{
 });
 
 //API Externa
-const APIkey ='c7ecc7de35dc46dfe49230277935003256587c135a2f24668be02e72ee4f92ba';
+const APIkey = String(process.env.EXTERNAL_API_KEY);
+const API_PATH = String(process.env.API_MAIN_PATH);
 
 routes.get('/api/paises',async (request: Request, response: Response)=>{
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-                }
-            };
-            const result = await fetch(`https://apiv3.apifootball.com/?action=get_countries&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_countries&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+    
 });
 
 routes.get('/api/pais/:id',async (request: Request, response: Response)=>{
     const ID = request.params.id.trim();
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };
-            const result = await fetch(`https://apiv3.apifootball.com/?action=get_countries&country_id=${ID}&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_countries&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+  
 });
 
 routes.get('/api/ligas/pais/:id',async (request: Request, response: Response)=>{
     const ID = request.params.id.trim();
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };
-            const result = await fetch(`https://apiv3.apifootball.com/?action=get_leagues&country_id=${ID}&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_leagues&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
 });
 
 routes.get('/api/ligas',async (request: Request, response: Response)=>{
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };
-            const result = await fetch(`https://apiv3.apifootball.com/?action=get_leagues&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_leagues&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+
 });
 
 

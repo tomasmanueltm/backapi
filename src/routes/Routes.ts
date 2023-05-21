@@ -1,5 +1,5 @@
 import {Request , Response, Router} from 'express'
-import {Axios} from 'axios'
+import axios,{AxiosRequestConfig} from 'axios'
 
 const routes = Router();
 
@@ -27,84 +27,79 @@ const API_PATH = String(process.env.API_MAIN_PATH);
 
 routes.get('/api/paises',async (request: Request, response: Response)=>{
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-                }
-            };
-            const result = await fetch(`${API_PATH}/?action=get_countries&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_countries&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+    
 });
 
 routes.get('/api/pais/:id',async (request: Request, response: Response)=>{
     const ID = request.params.id.trim();
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };//API_MAIN_PATH
-            const result = await fetch(`${API_PATH}/?action=get_countries&country_id=${ID}&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_countries&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+  
 });
 
 routes.get('/api/ligas/pais/:id',async (request: Request, response: Response)=>{
     const ID = request.params.id.trim();
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };
-            const result = await fetch(`${API_PATH}/?action=get_leagues&country_id=${ID}&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_leagues&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
 });
 
 routes.get('/api/ligas',async (request: Request, response: Response)=>{
     try {
-        const requestOptions = {
-            method: "GET",
-            type:'cors',
-            headers: { 
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            }
-            };
-            const result = await fetch(`${API_PATH}/?action=get_leagues&APIkey=${APIkey}`, 
-            requestOptions
-            );
-            const data = await result.json();
-            return response.status(200).json(data);
-    } catch (error) {
+        const requestOptions: AxiosRequestConfig = {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        };
+    
+        const result = await axios.get(`${API_PATH}/?action=get_leagues&APIkey=${APIkey}`, requestOptions);
+        const data = result.data;
+        return response.status(200).json(data);
+      } catch (error) {
         return response.status(500).json(error);
-    }
+      }
+
 });
 
 

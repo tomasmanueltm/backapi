@@ -63,7 +63,7 @@ routes.get('/api/pais/:id',async (request: Request, response: Response)=>{
           }
         };
     
-        const result = await axios.get(`${API_PATH}/?action=get_countries&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
+        const result = await axios.get(`${API_PATH}/?action=get_leagues&country_id=${ID}&APIkey=${APIkey}`, requestOptions);
         const data = result.data;
         return response.status(200).json(data);
       } catch (error) {
@@ -111,17 +111,42 @@ routes.get('/api/ligas',async (request: Request, response: Response)=>{
 });
 
 
+
+routes.get('/api/jogos/:id/:data',async (request: Request, response: Response)=>{
+  const ID = request.params.id.trim();
+  const DATA = request.params.data.trim();
+
+
+  try {
+      const requestOptions: AxiosRequestConfig = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        }
+      };
+  
+      const result = await axios.get(`${API_PATH}/?action=get_events&${DATA}&league_id=${ID}&APIkey=${APIkey}`, requestOptions);
+      const data = result.data;
+      return response.status(200).json(data);
+    } catch (error) {
+      return response.status(500).json(error);
+    }
+});
+
+
+
 //------------------- API Interna
 
 //USUARIO
-routes.post('/api/usuario', //ensuredAuthenticated(), 
-new UsuarioController().create);
+routes.post('/api/usuario', new UsuarioController().create); //ensuredAuthenticated(), 
 routes.get('/api/usuarios', new UsuarioController().findAll);
 routes.get('/api/usuario/:id', new UsuarioController().findById);
-routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController().updateBySenha);
+routes.put('/api/usuario/:senha', ensuredAuthenticated, new UsuarioController().updateBySenha);
 
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
+
 // Redefinir a senha SMS
 routes.post('/api/redefinir-senha/telefone', new UsuarioController().recuperarSenhaBySMS); //recebe o telefone e envia a sms e guarda o código na BD
 routes.post('/api/redefinir-senha/codigo', new UsuarioController().verificarCodigoEnviado); //recebe o codigo e verifica ele

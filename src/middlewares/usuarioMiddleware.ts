@@ -17,7 +17,7 @@ export const  ensuredAuthenticated = () => {
       const  sub  = decode(token);
       if(sub!== null){
         request.body.usuarioId = sub.toString();
-        console.log('RETURN : '+sub)
+        // console.log('RETURN : '+sub)
       }
       return next();
     } catch (err) {

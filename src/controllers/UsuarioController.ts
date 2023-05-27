@@ -31,20 +31,23 @@ export class UsuarioController{
             if (dados) {
                 return response.status(400).json(new Error("BAD REQUEST : Invalid datas!").message);
             }*/
-            const passwordHash = await hash(senha.trim(), 10);
+            const passwordHash = await hash(String(senha).trim(), 10);
             const service = await prismaClient.usuario.create({
                 data:{
-                    telefone : telefone.trim(),
-                    email : email.trim(),
-                    senha : passwordHash, 
-                    moeda_padrao : moeda.trim()
+                    telefone : String(telefone).trim(),
+                    email : String(email).trim(),
+                    senha : String(passwordHash).trim(), 
+                    moeda_padrao : String(moeda).trim(),
                 }
             })
             return response.status(201).json(service);
         } catch (error) {
             if(error instanceof Error){
-                console.log(error)
-                return response.status(500).json(error.message);
+                // console.log(error)
+                // return response.status(500).json(error.message);
+                return response.status(500).json({
+                    message: "dados incorreto"
+                })
             }
 
         } finally{
@@ -64,19 +67,30 @@ export class UsuarioController{
                 }
             })
             if (!dados) {
-                return response.status(404).json(new Error("NOT FOUND : PHONE NUMBER!").message);
+                return response.status(404).json({
+                    message: "dados incorreto"
+                })
+                // return response.status(404).json(new Error("NOT FOUND : PHONE NUMBER!").message);
             }
             const passwordMatch = await compare(senha.trim(), String(dados.senha));
             
             if (!passwordMatch) {
-                return response.status(400).json(new Error("BAD REQUEST : PASSWORD IS WRONG!").message);
+                // return response.status(400).json(new Error("BAD REQUEST : PASSWORD IS WRONG!").message);
+                return response.status(404).json({
+                    status: "dados senha incorreta",
+                    message: "pass"
+                })
             }
           
             const token = gerarToken(dados.id);
 
-            return response.status(200).json({'JWToken': token });
+            return response.status(200).json({JWToken: token, status: 'sucesso'});
         } catch (error) {
-            return error;
+            // return error;
+            return response.status(404).json({
+                status: "dados inexistente",
+                message: "user"
+            })
         } finally{
             await prismaClient.$disconnect();
         }
@@ -154,6 +168,8 @@ export class UsuarioController{
                 id
             }
         });
+
+        console.log(usuario)
         try {
             return response.status(200).json(usuario);
         } catch (error) {
@@ -161,7 +177,7 @@ export class UsuarioController{
                 return response.status(500).json(error.message);
             }
         }finally{
-            await prismaClient.$disconnect();
+            // await prismaClient.$disconnect();
                       
         }
     }

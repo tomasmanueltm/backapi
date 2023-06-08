@@ -3,9 +3,11 @@ import nodemailer from 'nodemailer';
 // Configuração do transporter do Nodemailer para Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  host: 'smtp.mailtrap.io',
+  port: 2525,
   auth: {
-    user: 'tomasmanueltm.developer@gmail.com', // Seu e-mail do Gmail
-    pass: 'Tm?220844', // Sua senha do Gmail
+    user: process.env.EMAIL_DESCRIPTION, // Seu e-mail do Gmail 
+    pass: process.env.EMAIL_PASSWORD, // Sua senha do Gmail
   },
 });
 

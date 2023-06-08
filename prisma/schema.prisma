@@ -140,6 +140,7 @@ model jogo {
   evento      evento[]
 }
 
+<<<<<<< HEAD
 model conta_plano {
   id         Int     @id @default(autoincrement())
   id_usuario Int
@@ -165,6 +166,19 @@ model admin {
   usuario usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_id_usuario_admin")
 
   @@index([id_usuario], map: "fk_id_usuario_admin")
+=======
+model agente {
+  id          Int      @id @default(autoincrement())
+  nome        String  @db.VarChar(100)
+  email   String  @db.MediumText
+  data_nasc      String  @db.VarChar(100)
+  pais       String  @db.VarChar(100)
+  moeda       String  @db.VarChar(100)
+  telefone       String?  @db.VarChar(100)
+  endereco       String?  @db.VarChar(100)
+  file_original_name String?  @db.VarChar(100)
+  file_name String?  @db.VarChar(100)
+>>>>>>> main
 }
 
 model odds {

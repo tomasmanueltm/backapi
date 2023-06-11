@@ -11,21 +11,10 @@ import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
 import {ensuredAuthenticated} from 'src/middlewares/usuarioMiddleware';
 import { generateRandomString } from 'src/utils/GerarChavesFortes';
+import { adminRouter } from './AdminRoutes';
 
 
-// Rota padrão para lidar com rotas não existentes
-routes.use((req: Request, res: Response, next: NextFunction) => {
-  const error: any = new Error('Rota não encontrada');
-  error.status = 404;
-  next(error);
-});
 
-// Middleware de tratamento de erro
-routes.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  res.status(err.status || 500).json({
-    message: err.message || 'Erro interno do servidor',
-  });
-});
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -260,5 +249,23 @@ routes.delete('/api/times/:id',  [
 routes.put('/api/times/:id',  [
   query('id').notEmpty().isInt().withMessage('O parametro id é obrigatório!'),
 ],new TimesController().update);
+
+//Add ficheiros de rotas
+
+routes.use(adminRouter);
+
+// Rota padrão para lidar com rotas não existentes
+routes.use((req: Request, res: Response, next: NextFunction) => {
+  const error: any = new Error('Rota não encontrada');
+  error.status = 404;
+  next(error);
+});
+
+// Middleware de tratamento de erro
+routes.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(err.status || 500).json({
+    message: err.message || 'Erro interno do servidor',
+  });
+});
 
 export { routes };

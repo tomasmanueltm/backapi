@@ -7,6 +7,7 @@ import twilio from 'twilio';
 import transporter from 'src/utils/GmailConnexion';
 import { validationResult } from 'express-validator';
 
+
 const API_DEFAULT_ROUTE = String(process.env.API_DEFAULT_ROUTE);
 
 const client = twilio(

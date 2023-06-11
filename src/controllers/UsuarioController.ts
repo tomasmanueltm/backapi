@@ -102,6 +102,10 @@ export class UsuarioController{
     }
 
     async updateBySenha(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const {
             senha, email 
         } = request.body;
@@ -170,6 +174,10 @@ export class UsuarioController{
     }
 
     async deleteById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id);
         const usuario = await prismaClient.usuario.delete({
             where:{
@@ -191,6 +199,10 @@ export class UsuarioController{
     }
 
     async update(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const {
             nome, pais, iban
         } = request.body;

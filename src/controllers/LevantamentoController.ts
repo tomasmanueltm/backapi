@@ -1,6 +1,8 @@
 import {Request , Response, NextFunction} from 'express'
 import { prismaClient } from '../database/prismaClient';
 
+import { validationResult } from 'express-validator';
+
 
 export class LevantamentoController{
     async create(request: Request, response: Response){
@@ -38,6 +40,10 @@ export class LevantamentoController{
     }
 
     async deleteById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id);
         const service = await prismaClient.levantamento
         .delete({
@@ -58,6 +64,10 @@ export class LevantamentoController{
     }
 
     async update(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const {
             valor, idUsuario
         } = request.body;
@@ -86,6 +96,10 @@ export class LevantamentoController{
     }
 
     async findById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number(request.params.id.trim());
         try {
             const service = await prismaClient.levantamento.findFirst({

@@ -1,6 +1,7 @@
 import {Request , Response} from 'express'
 import { prismaClient } from '../database/prismaClient';
 
+import { validationResult } from 'express-validator';
 
 export class DepositoController{
     async create(request: Request, response: Response){
@@ -39,6 +40,10 @@ export class DepositoController{
     }
 
     async findById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id.trim());
         const service = await prismaClient.deposito.findFirst({
             where:{
@@ -52,6 +57,10 @@ export class DepositoController{
     }
 
     async deleteById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id.trim());
         const service = await prismaClient.deposito
         .delete({
@@ -72,6 +81,10 @@ export class DepositoController{
     }
 
     async update(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id.trim());
         const {
             valor,iban, idUsuario, referencia

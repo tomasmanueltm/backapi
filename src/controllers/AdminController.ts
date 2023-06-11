@@ -2,16 +2,15 @@ import {Request , Response, NextFunction} from 'express'
 import { prismaClient } from '../database/prismaClient';
 import { validationResult } from 'express-validator';
 
-export class AgenteController{
+export class AdminController{
 
     async create(request: Request, response: Response){
         const {
+            id_usuario,
             nome,
-            numero,
-            email ,
-            nivel ,
-            iban   ,
-            endereco, 
+            nivel,
+            endereco,
+            telefone
         } = request.body;
         
         try {
@@ -20,14 +19,13 @@ export class AgenteController{
                 return response.status(400).json({ errors: errors.array() });
             }
             
-            const service = await prismaClient.agente.create({
+            const service = await prismaClient.admin.create({
                 data:{
-                    nome : nome.trim(),
-                    email: email.trim(),
-                    endereco : endereco.trim(),
-                    numero: numero.trim(),
-                    nivel : nivel.trim(),
-                    iban  : iban.trim() ,
+                    id_usuario: id_usuario.trim(),
+                    nome: nome.trim(),
+                    nivel: nivel.trim(),
+                    endereco: endereco.trim(),
+                    telefone: telefone.trim()
                 }
             })
             return response.status(201).json(service);
@@ -43,7 +41,7 @@ export class AgenteController{
     }
 
     async findAll(request: Request, response: Response){
-        const agente = await prismaClient.agente.findMany();
+        const agente = await prismaClient.admin.findMany();
         if(agente instanceof Error){
             return response.status(500).json(agente.message);
         }
@@ -56,7 +54,7 @@ export class AgenteController{
             return response.status(400).json({ errors: errors.array() });
         }
         const id = Number(request.params.id.trim())
-        const agente = await prismaClient.agente.findFirst({
+        const agente = await prismaClient.admin.findFirst({
             where:{
                 id
             }

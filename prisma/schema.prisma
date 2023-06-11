@@ -38,21 +38,24 @@ model times {
 
 model usuario {
   id           Int                   @id @default(autoincrement())
-  nome         String?                @db.VarChar(255)
+  nome         String?               @db.VarChar(255)
   iban         String?               @db.VarChar(200)
   pais         String?               @db.VarChar(255)
   moeda_padrao String?               @db.VarChar(255)
-  email      String? @db.VarChar(200)
-  telefone   String? @db.VarChar(100)
-  senha      String? @db.MediumText
-  token      String? @db.MediumText
-  codigo_sms      String? @db.VarChar(100)
-  email_token      String? @db.MediumText
-  exp        String? @db.VarChar(100)
+  email        String?               @db.VarChar(200)
+  telefone     String?               @db.VarChar(100)
+  senha        String?               @db.MediumText
+  token        String?               @db.MediumText
+  codigo_sms   String?               @db.VarChar(100)
+  email_token  String?               @db.MediumText
+  exp          String?               @db.VarChar(100)
   tipo_usuario usuario_tipo_usuario? @default(Normal)
   aposta       aposta[]
   deposito     deposito[]
   levantamento levantamento[]
+  venda        venda[]
+  conta_plano  conta_plano[]
+  admin        admin[]
 }
 
 model aposta {
@@ -96,6 +99,38 @@ model ficha {
   aposta     aposta[]
 }
 
+model agente {
+  id       Int     @id @default(autoincrement())
+  nome     String? @db.MediumText
+  endereco String? @db.MediumText
+  numero   String? @db.MediumText
+  email    String? @db.MediumText
+  nivel    String? @db.MediumText
+  iban     String? @db.MediumText
+  venda    venda[]
+}
+
+model plano {
+  id          Int           @id @default(autoincrement())
+  nome        String?       @db.MediumText
+  venda       venda[]
+  conta_plano conta_plano[]
+}
+
+model venda {
+  id         Int      @id @default(autoincrement())
+  id_agente  Int
+  id_plano   Int
+  id_usuario Int
+  agente     agente?  @relation(fields: [id_agente], references: [id], onDelete: Cascade, map: "fk_id_agente_venda")
+  plano      plano?   @relation(fields: [id_plano], references: [id], onDelete: Cascade, map: "fk_id_plano_venda")
+  usuario    usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_id_usuario_venda")
+
+  @@index([id_agente], map: "fk_id_agente_venda")
+  @@index([id_plano], map: "fk_id_plano_venda")
+  @@index([id_usuario], map: "fk_id_usuario_venda")
+}
+
 model jogo {
   id          Int      @id @default(autoincrement())
   casa        String?  @db.VarChar(100)
@@ -105,17 +140,31 @@ model jogo {
   evento      evento[]
 }
 
-model agente {
-  id          Int      @id @default(autoincrement())
-  nome        String  @db.VarChar(100)
-  email   String  @db.MediumText
-  data_nasc      String  @db.VarChar(100)
-  pais       String  @db.VarChar(100)
-  moeda       String  @db.VarChar(100)
-  telefone       String?  @db.VarChar(100)
-  endereco       String?  @db.VarChar(100)
-  file_original_name String?  @db.VarChar(100)
-  file_name String?  @db.VarChar(100)
+model conta_plano {
+  id         Int     @id @default(autoincrement())
+  id_usuario Int
+  id_plano   Int
+  saldo      String? @db.MediumText
+  bonus      String? @db.MediumText
+  plano      plano?  @relation(fields: [id_plano], references: [id], onDelete: Cascade, map: "fk_id_plano_conta_plano")
+
+  usuario usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_id_usuario_conta_plano")
+
+  @@index([id_usuario], map: "fk_id_usuario_conta_plano")
+  @@index([id_plano], map: "fk_id_plano_conta_plano")
+}
+
+model admin {
+  id         Int     @id @default(autoincrement())
+  id_usuario Int
+  nome       String? @db.MediumText
+  nivel      String? @db.MediumText
+  endereco   String? @db.MediumText
+  telefone   String? @db.VarChar(20)
+
+  usuario usuario? @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "fk_id_usuario_admin")
+
+  @@index([id_usuario], map: "fk_id_usuario_admin")
 }
 
 model odds {

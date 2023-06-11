@@ -1,6 +1,8 @@
 import {Request , Response, NextFunction} from 'express'
 import { prismaClient } from '../database/prismaClient';
 
+import { validationResult } from 'express-validator';
+
 
 export class TimesController{
     async create(request: Request, response: Response){
@@ -41,6 +43,10 @@ export class TimesController{
     }
 
     async findById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id.trim());
         const service = await prismaClient.times.findFirst({
             where:{
@@ -54,6 +60,10 @@ export class TimesController{
     }
 
     async deleteById(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const id = Number (request.params.id.trim());
         const service = await prismaClient.times
         .delete({
@@ -74,6 +84,10 @@ export class TimesController{
     }
 
     async update(request: Request, response: Response){
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
         const {
             adversario, casa,probabilidadeCasa, probabilidadeAdversario, empate
         } = request.body;

@@ -1,4 +1,4 @@
-import {Request , Response, Router} from 'express'
+import {Request , Response, Router, ErrorRequestHandler, NextFunction} from 'express'
 import axios,{AxiosRequestConfig} from 'axios'
 
 import { body,query } from 'express-validator';
@@ -11,6 +11,21 @@ import {LevantamentoController} from '../controllers/LevantamentoController';
 import {TimesController} from '../controllers/TimesController'
 import {ensuredAuthenticated} from 'src/middlewares/usuarioMiddleware';
 import { generateRandomString } from 'src/utils/GerarChavesFortes';
+
+
+// Rota padrão para lidar com rotas não existentes
+routes.use((req: Request, res: Response, next: NextFunction) => {
+  const error: any = new Error('Rota não encontrada');
+  error.status = 404;
+  next(error);
+});
+
+// Middleware de tratamento de erro
+routes.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(err.status || 500).json({
+    message: err.message || 'Erro interno do servidor',
+  });
+});
 
 routes.get('/',async (request: Request, response: Response)=>{
     return response.status(200).json({
@@ -141,12 +156,6 @@ routes.get('/api/jogos/:id/:data',async (request: Request, response: Response)=>
 //------------------- API Interna
 
 //USUARIO
-<<<<<<< HEAD
-routes.post('/api/usuario', new UsuarioController().create); //ensuredAuthenticated(), 
-routes.get('/api/usuarios', new UsuarioController().findAll);
-routes.get('/api/usuario/:id', new UsuarioController().findById);
-routes.put('/api/usuario/:senha', ensuredAuthenticated, new UsuarioController().updateBySenha);
-=======
 routes.post('/api/usuario',[ //telefone, senha, moeda, email
     body('telefone').notEmpty().isString().withMessage('O campo telefone é obrigatório!'),
     body('senha').notEmpty().isString().withMessage('O campo senha é obrigatório!'),
@@ -162,7 +171,7 @@ routes.get('/api/usuario/:id',
 ],
 new UsuarioController().findById);
 routes.put('/api/usuario/:senha', ensuredAuthenticated , new UsuarioController().updateBySenha);
->>>>>>> main
+
 
 routes.delete('/api/usuario/:id', new UsuarioController().deleteById);
 routes.put('/api/usuario/:id', new UsuarioController().update);
